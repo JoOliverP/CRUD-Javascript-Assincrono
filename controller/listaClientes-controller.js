@@ -1,6 +1,8 @@
 import {clienteService} from '../service/cliente-service.js'
+
+
 /*CRIAÇÃO DE UM TEMPLATE  PARA VIZUALIZAÇÃO DOS DADOS*/
-const criaNovaLinha = (nome,email) =>{
+const criaNovaLinha = (nome,email,id) =>{
     const linhaNovoCliente = document.createElement('tr')
 
     const conteudo =`
@@ -15,16 +17,35 @@ const criaNovaLinha = (nome,email) =>{
     `
     linhaNovoCliente.innerHTML = conteudo
 
-    return linhaNovoCliente
+    linhaNovoCliente.dataset.id = id    /*cria data atributs */
 
+    return linhaNovoCliente
 }
+
+
 /* Verifica o dom para buscar a tabela*/
 const tabela = document.querySelector('[data-tabela')
+
+
+
+tabela.addEventListener('click', (evento)=>{
+    let ehbotaoDeleta = evento.target.className === 'botao-simples botao-simples--excluir'
+
+    if (ehbotaoDeleta) {
+        const linhaCliente = evento.target.closest('[data-id]')
+        let id = linhaCliente.dataset.id
+        clienteService.removeCliente(id)
+        .then(()=>{
+            linhaCliente.remove()
+        })
+    }
+})
+
 
 /*CHAMA A FUNÇÃO DA API PARA VIZUALIZAÇÃO */
 clienteService.listaClientes()
 .then(data =>{
             data.forEach(element => {
-            tabela.appendChild(criaNovaLinha(element.nome,element.email))
+            tabela.appendChild(criaNovaLinha(element.nome,element.email,element.id))
             });
 })
