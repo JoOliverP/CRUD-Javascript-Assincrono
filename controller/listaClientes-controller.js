@@ -22,30 +22,39 @@ const criaNovaLinha = (nome,email,id) =>{
     return linhaNovoCliente
 }
 
-
 /* Verifica o dom para buscar a tabela*/
 const tabela = document.querySelector('[data-tabela')
 
-
-
-tabela.addEventListener('click', (evento)=>{
+tabela.addEventListener('click', async (evento)=>{
     let ehbotaoDeleta = evento.target.className === 'botao-simples botao-simples--excluir'
 
     if (ehbotaoDeleta) {
-        const linhaCliente = evento.target.closest('[data-id]')
-        let id = linhaCliente.dataset.id
-        clienteService.removeCliente(id)
-        .then(()=>{
+        try {
+            const linhaCliente = evento.target.closest('[data-id]')
+            let id = linhaCliente.dataset.id
+            await clienteService.removeCliente(id)
             linhaCliente.remove()
-        })
+        } catch (erro) {
+            console.log(erro)
+            window.location.href = '../telas/erro.html'
+        }
+        
     }
 })
 
 
 /*CHAMA A FUNÇÃO DA API PARA VIZUALIZAÇÃO */
-clienteService.listaClientes()
-.then(data =>{
-            data.forEach(element => {
-            tabela.appendChild(criaNovaLinha(element.nome,element.email,element.id))
-            });
-})
+const render = async ()=>{
+    try{
+        const listaClientes = await clienteService.listaClientes()
+
+        listaClientes.forEach(element => {
+        tabela.appendChild(criaNovaLinha(element.nome,element.email,element.id))
+        });   
+    }catch (erro) {
+        console.log(erro)
+        window.location.href = '../telas/erro.html'
+    }
+}
+
+render()
